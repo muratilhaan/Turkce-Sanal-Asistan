@@ -1,163 +1,347 @@
+import calendar
+import smtplib
+import time
 
+import cv2
+import pyttsx3
+import datetime
+import wikipedia
+import webbrowser
+from playsound import playsound
+from gtts import gTTS
+import speech_recognition as sr
 import os
-import re
-import pprint
+import google
+import pyglet
+import imageio
 import random
-import warnings
-
-warnings.filterwarnings("ignore")
-warnings.warn("second example of warning!")
+import winshell
 
 
 
+# NOTLAR:
+# TÜRKİYE SES KAYNAĞI GEREKLİ
+kayit=sr.Recognizer()
+def dinleme(a=False):
+    with sr.Microphone() as kaynak:
+        if a:
+            print(a)
+        mikrofon=kayit.listen(kaynak)
+        ses=""
 
-def t2s(text):
-   pass
+        try:
+            ses=kayit.recognize_google(mikrofon,language="tr-TR")
+
+        except sr.UnknownValueError:
+            pass
+        except sr.RequestError:
+            konusma("Konusmayacaksan gidiyorum. ")
+            quit()
+
+        return ses
+
+def googlearama(arama):
+    url="https://www.google.com.tr/search?q="+arama
+    webbrowser.get().open(url)
+    konusma("aradığın şey bu olabilir  mi?")
+
+def konusma(metin):
+    tts=gTTS(text=metin,lang="tr",slow=False)
+    ses = "C://Users//steam//PycharmProjects//opencvmurat//Katmanasistan//katman.mp3"
+    tts.save(ses)
+    playsound(ses)
+    os.remove(ses)
+
+if __name__ == "__main__":
+    konusma("Merhaba Kaptan.")
 
 
-def start():
-    while True:
-        print("Sizin için efendim, her zaman")
-        status, command = obj.hot_word_detect()
-        print(status, command)
-        if status:
-            while True:
-                # use any one of them
-                print("Continue listening, say- 'stop listening to stop continue listening'")
-                res = obj.mic_input()
-                # res = obj.mic_input_ai(debug=True)
-                res = res.lower()
-                print("You said: " + res)
+def canli():
+    suan=datetime.datetime.now()
+    saat = datetime.datetime.now().hour
+    day=datetime.datetime.today()
+    hafta=calendar.day_name[day.weekday()]#haftanın kaçıncı günü
+    ay=suan.month
+    gun=suan.day
 
-                if re.search("jokes|joke|Jokes|Joke", res):
-                    joke_ = obj.tell_me_joke('en', 'neutral')
-                    print(joke_)
-                    t2s(joke_)
+    if ay==1:
+        ay="ocak"
 
-                elif re.search('setup|set up', res):
-                    setup = obj.setup()
-                    print(setup)
+    elif ay == 2:
+        ay = "şubat"
 
-                elif re.search('google photos', res):
-                    photos = obj.show_google_photos()
-                    print(photos)
+    elif ay == 3:
+        ay = "mart"
 
-                elif re.search('local photos', res):
-                    photos = obj.show_me_my_images()
-                    print(photos)
+    elif ay == 4:
+        ay = "nisan"
+    elif ay == 5:
+        ay = "mayıs"
+    elif ay == 6:
+        ay = "haziran"
+    elif ay == 7:
+        ay = "temmuz"
+    elif ay == 8:
+        ay = "ağustos"
+    elif ay == 9:
+        ay = "eylül"
+    elif ay==10:
+        ay = "ekim"
+    elif ay == 11:
+        ay = "kasım"
+    elif ay==12:
+        ay="aralık"
 
-                elif re.search('weather|temperature', res):
-                    # city = res.split(' ')[-1]
-                    # weather_res = obj.weather(city=city)
-                    weather_res = obj.get_weather(res)
-                    print(weather_res)
-                    t2s(weather_res)
+    if hafta=="Monday":
+        hafta="pazartesi"
+    elif hafta=="Tuesday":
+        hafta="salı"
+    elif hafta == "Wednesday":
+        hafta = "çarşamba"
+    elif hafta == "Thursday":
+        hafta = "perşembe"
+    elif hafta == "Friday":
+        hafta = "cuma"
+    elif hafta == "Saturday":
+        hafta = "cumartesi"
+    elif hafta=="Sunday":
+        hafta="pazar"
 
-                elif re.search('news', res):
-                    news_res = obj.news()
-                    pprint.pprint(news_res)
-                    t2s(f"I have found {len(news_res)} news. You can read it. Let me tell you first 2 of them")
-                    t2s(news_res[0])
-                    t2s(news_res[1])
 
-                elif re.search('tell me about', res):
-                    topic = res[14:]
-                    wiki_res = obj.tell_me(topic)
-                    print(wiki_res)
-                    t2s(wiki_res)
 
-                elif re.search('date', res):
-                    date = obj.tell_me_date()
-                    print(date)
-                    print(t2s(date))
+    if saat >= 7 and saat < 12:
+        konusma(f"Günaydın !muhteşem bir {gun} {ay}{hafta}sabahı.")
 
-                elif re.search('time', res):
-                    time = obj.tell_me_time()
-                    print(time)
-                    t2s(time)
+    elif saat >= 12 and saat < 18:
+        konusma(f"iyi günler !. muhteşem bir {gun} {ay}{hafta}günü.")
+    elif saat >=18 and saat <22:
+        konusma(f"iyi Geceler ! muhteşem bir {gun} {ay}{hafta}akşamı")
+    else:
+        konusma(f"iyi Geceler! Muhteşembir {gun}{ay}{hafta}gecesi")
 
-                elif re.search('open', res):
-                    domain = res.split(' ')[-1]
-                    open_result = obj.website_opener(domain)
-                    print(open_result)
 
-                elif re.search('launch', res):
-                    dict_app = {
-                        'chrome': 'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe',
-                        'epic games': 'C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe'
-                    }
 
-                    app = res.split(' ', 1)[1]
-                    path = dict_app.get(app)
-                    if path is None:
-                        t2s('Application path not found')
-                        print('Application path not found')
-                    else:
-                        t2s('Launching: ' + app)
-                        obj.launch_any_app(path_of_app=path)
 
-                elif re.search('hello|hi', res):
-                    print('Hi')
-                    t2s('Hi')
+def gonderEmail(gidecek, metin):  ##?ALI?MIYOR
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.ehlo()
+    server.starttls()
+    server.login('mailadresiİD@gmail.com', 'password')
+    server.sendmail('MailadresiİD@gmail.com', gidecek, metin)
+    server.close()
 
-                elif re.search('how are you', res):
-                    li = ['good', 'fine', 'great']
-                    response = random.choice(li)
-                    print(f"I am {response}")
-                    t2s(f"I am {response}")
 
-                elif re.search('your name|who are you', res):
-                    print("I am your personal assistant")
-                    t2s("I am your personal assistant")
 
-                elif re.search('what can you do', res):
-                    li_commands = {
-                        "open websites": "Example: 'open youtube.com",
-                        "time": "Example: 'what time it is?'",
-                        "date": "Example: 'what date it is?'",
-                        "launch applications": "Example: 'launch chrome'",
-                        "tell me": "Example: 'tell me about India'",
-                        "weather": "Example: 'what weather/temperature in Mumbai?'",
-                        "news": "Example: 'news for today' ",
-                    }
-                    ans = """I can do lots of things, for example you can ask me time, date, weather in your city,
-                    I can open websites for you, launch application and more. See the list of commands-"""
-                    print(ans)
-                    pprint.pprint(li_commands)
-                    t2s(ans)
-                elif re.search('tech news', res):
-                    obj.show_me_some_tech_news()
 
-                elif re.search('tech videos', res):
-                    obj.show_me_some_tech_videos()
+def anlasma():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        konusma("seni dinliyorum.")
+        r.pause_threshold = 1
+        ses = r.listen(source)
+    try:
+        konusma("Algılanıyor...")
+        sorgu = r.recognize_google(ses, language="tr-TR")
 
-                elif re.search(r"^add *.+ list$", res):
-                    obj.create_new_list(res)
+    except Exception as e:
+        konusma(f"dediğin şey ne demek tam olarak bilmiyorum.")
+        return "None"
+    return sorgu
 
-                elif re.search(r"^show *.+ list$", res):
-                    obj.show_me_my_list()
-
-                elif re.search(r"^delete *.+ list$", res):
-                    obj.delete_particular_list(res)
-
-                elif re.search("stop listening|stop", res):
-                    break
-
-                else:
-                    chatbot_response = obj.chatbot_base(input_text=res)  # comment this line if you want to use chatbot large
-                    # chatbot_response = obj.chatbot_large(input_text=res) # uncomment this line to use large model for heavy/complex tasks
-
-                    print(chatbot_response)
-                    t2s(chatbot_response)
-        else:
-            continue
 
 
 if __name__ == "__main__":
-    if not os.path.exists("configs/config.ini"):
-        print(os.listdir())
-        res = obj.setup()
-        if res:
-            print("Settings Saved. Restart your Assistant")
-    else:
-        start()
+    canli()
+
+    while True:
+        sorgu = anlasma().lower()
+
+
+
+        if 'vikipedi' in sorgu:
+            konusma('Wikipediada aranıyor...')
+            sorgu = sorgu.replace("wikipedia", "")
+            sonuc = wikipedia.summary(sorgu, sentences=2)
+            konusma("Wikipediada çıkan sonuçlar şu şekilde")
+            print(sonuc)
+            konusma(sonuc)
+        elif 'teşekkür' in sorgu:
+            konusma("Ne demek ben teşekkür ederim")
+            continue
+
+        elif "şarkı" in sorgu:
+            while True:
+                konusma("Aradığın şarkı sözleri nedir?")
+                r = sr.Recognizer()
+                with sr.Microphone() as source:
+                    r.pause_threshold = 1
+                    ses = r.listen(source)
+                    try:
+                        sorgu = r.recognize_google(ses, language="tr-TR")
+                        konusma("şarkı Algılanıyor...")
+                        konusma("Aradığın şarkı bu olabilir mi?")
+                        googlearama(sorgu)
+                        break
+                    except Exception as e:
+                        konusma("seni algılayamadım...")
+
+
+        elif "gün" in sorgu:
+            day=datetime.datetime.today()
+            hafta=calendar.day_name[day.weekday()]
+            if hafta == "Monday":
+                hafta = "pazartesi"
+            elif hafta == "Tuesday":
+                hafta = "salı"
+            elif hafta == "Wednesday":
+                hafta = "çarşamba"
+            elif hafta == "Thursday":
+                hafta = "perşembe"
+            elif hafta == "Friday":
+                hafta = "cuma"
+            elif hafta == "Saturday":
+                hafta = "cumartesi"
+            elif hafta == "Sunday":
+                hafta = "pazar"
+
+            konusma(f"Bugün günlerden {hafta}.")
+
+
+
+        elif "saat kaç" in sorgu:
+            saat =datetime.datetime.now().hour
+            dakika=datetime.datetime.now().minute
+            print(dakika)
+            konusma(f"saat şuanda {saat}.{str(dakika)}")
+        elif 'nasılsın' in sorgu:
+            konusma("çok teşekkür ederim iyiyim.")
+
+        elif 'youtube' in sorgu:
+            konusma("yutuba yönlendiriyorum.")
+            webbrowser.open("https://www.youtube.com/")
+
+        elif 'robot' in sorgu:
+            konusma("robot dediğini duydum ve kalbimi çok kırdığını bilmeni isterim.")
+
+        elif 'siri' in sorgu:
+            konusma("sirinin tam olarak kim olduğunu bilmiyorum biraz daha gelişirse tanıyabilirim")
+
+        elif "fıkra" in sorgu:
+            while True:
+                konusma("demek ki fıkra istiyorsun. Kimin hakkında fıkra bulmamı istersin?")
+                r = sr.Recognizer()
+                with sr.Microphone() as source:
+                    r.pause_threshold = 1
+                    ses = r.listen(source)
+                    try:
+                        kisi=r.recognize_google(ses, language="tr-TR")
+                        konusma(f"{kisi(kisi)},hakkında bir fıkra arıyorum...")
+                        if "Nesrin" in kisi:
+                            konusma("nesrin fıkra")
+                            break
+                        if "çağrı" in kisi:
+                            konusma("çağrı fıkra")
+                            break
+                        if "Mert" in kisi:
+                            konusma("mert fıkra")
+                            break
+                        if "Samet" in kisi:
+                            konusma("samet fıkra")
+                            break
+
+                    except:
+                        pass
+        elif 'yapay' in sorgu:
+            konusma("yapay olduğumun farkındayım ama bence gayet zekiyim")
+
+
+        elif 'google' in sorgu.lower():
+            while True:
+                konusma("gogılda ne aramak istiyorsun??")
+                r = sr.Recognizer()
+                with sr.Microphone() as source:
+                    r.pause_threshold = 1
+                    ses = r.listen(source)
+                    try:
+                        sorgu = r.recognize_google(ses, language="tr-TR")
+                        konusma("bulmaya çalışıyorum...")
+                        webbrowser.open("https://www.google.com/search?q="+"".join(str(sorgu)))
+                        break
+
+                    except:
+                        pass
+        elif "çöp" in sorgu:
+            konusma("sana gönderdiğim uyarı kutusundan.çöp kutusunu silmek isteyip istemediğini sordum.")
+            winshell.recycle_bin().empty(confirm=True,show_progress=False,sound=True)
+            konusma("çöpler siliniyor..")
+
+        elif "harita"in sorgu or "navigasyon" in sorgu:
+            while True:
+                konusma("haritada aramak istediğin yeri söyleyebilirsin.")
+                r = sr.Recognizer()
+                with sr.Microphone() as source:
+                    r.pause_threshold = 1
+                    ses = r.listen(source)
+                    try:
+                        sorgu = r.recognize_google(ses, language="tr-TR")
+                        konusma("bulmaya çalışıyorum...")
+                        webbrowser.open("https://www.google.com/maps/place/"+"".join(str(sorgu)))
+                        break
+
+                    except:
+                        pass
+
+
+
+        elif 'instagram' in sorgu:
+            konusma("instagrama yönlendiriyorum")
+            webbrowser.open("https://www.instagram.com/")
+
+
+        elif 'müzik' in sorgu:
+            konusma("senin için bir müzik açıyorum")
+            muzik_klasor = 'C:\\hype'
+            sarki = os.listdir(muzik_klasor)
+            print(sarki)
+            os.startfile(os.path.join(muzik_klasor, sarki[0]))
+
+
+        elif 'saat' in sorgu:
+            strTime = datetime.datetime.now().strftime("%H:%M:%S")
+            konusma(f"Kaptan, saat şuanda {strTime}")
+
+
+        elif 'discord' in sorgu:
+            webbrowser.open("https://discord.com/")
+
+
+        elif 'mail' in sorgu:
+            try:
+                konusma("Ne söylememi istersin?")
+                metin = anlasma()
+                gidecek = "mailadresi@gmail.com"
+                gonderEmail(gidecek, metin)
+                konusma("Mail gönderildi")
+            except Exception as e:
+                print(e)
+                konusma("Maalesef Mail gönderilemedi...")
+
+
+        elif 'twitch' in sorgu:
+            webbrowser.open("https://twitch.tv/hype")
+
+        elif 'çıkış' in sorgu:
+            quit()
+
+
+
+
+
+
+
+
+
+
+
+
+
